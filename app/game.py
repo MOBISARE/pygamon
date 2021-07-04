@@ -1,6 +1,8 @@
 import pygame
 import pytmx
 import pyscroll
+import os
+
 
 
 class Game:
@@ -9,13 +11,21 @@ class Game:
         self.screen = pygame.display.set_mode((800, 600))
         pygame.display.set_caption("Pygamon")
 
+        cwd = os.getcwd()  # Get the current working directory (cwd)
+        files = os.listdir(cwd)  # Get all the files in that directory
+        print("Files in %r: %s" % (cwd, files))
+
+        for f in os.listdir(r"C:\Users\mluc5\Documents\Python\pygamon"):
+            print(f)
+
         # Charger la carte
-        tmx_data = pytmx.util_pygame.load_pygame("../pygamon/carte.tmx")
-        map_data = pyscroll.TiledMapData(tmx_data)
+        tmx_data = pytmx.util_pygame.load_pygame(r"C:\Users\mluc5\Documents\Python\pygamon\carte.tmx")
+        map_data = pyscroll.data.TiledMapData(tmx_data)
         map_layer = pyscroll.orthographic.BufferedRenderer(map_data, self.screen.get_size())
 
         # dessiner le groupe de calques
-        self.group = pyscroll.PyscrollGroup(map_layer, default_layer=1)
+        default_layer = 1
+        self.group = pyscroll.PyscrollGroup(map_layer, default_layer)
 
 
     def run(self):
