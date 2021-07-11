@@ -6,4 +6,4 @@ if __name__ == "__main__":
     print("Launching...\n")
     pygame.init()
     game = Game()
-    game.run()
+    game._run()
