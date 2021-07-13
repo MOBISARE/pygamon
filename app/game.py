@@ -3,7 +3,9 @@ import pytmx
 import pyscroll
 import os
 
-import player
+from player import Player
+
+from pygame.time import Clock
 
 
 class Game:
@@ -15,7 +17,7 @@ class Game:
     self.player # Le joueur
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.screen = pygame.display.set_mode((800, 600))
         pygame.display.set_caption("Pygamon")
 
@@ -29,13 +31,22 @@ class Game:
 
         # Génération du joueur
         player_position = tmx_data.get_object_by_name("player")
-        self.player = player.Player(player_position.x, player_position.y)
+        self.player = Player(player_position.x, player_position.y)
+
+        # Liste cintenant tous les murs provoquant une collision
+        self.walls = []
+
+        for obj in tmx_data.objects:
+            if obj.type == "collision":
+                self.walls.append(pygame.Rect(obj.x, obj.y, obj.width, obj.height))
+
+
 
         # dessiner le groupe de calques
         self.group = pyscroll.PyscrollGroup(map_layer=map_layer, default_layer=3)
         self.group.add(self.player)
 
-    def handle_input(self):
+    def handle_input(self) -> None:
         pressed = pygame.key.get_pressed()
 
         if pressed[pygame.K_UP]:
@@ -54,15 +65,24 @@ class Game:
             self.player.move_right()
             self.player.change_animation('right')
 
-    def _run(self):
+    def update(self) -> None:
+        self.group.update()
+        for sprite in self.group.sprites():
+            if sprite.feet.collidelist(self.walls) > -1:
+                sprite.move_back()
 
-        clock = pygame.time.Clock()
+
+
+    def run(self) -> None:
+
+        clock = Clock()
 
         # Boucle du jeu
         running = True
         while running:
+            self.player.save_location()
             self.handle_input()
-            self.group.update()
+            self.update()
             self.group.center(self.player.rect)
             self.group.draw(self.screen)
             pygame.display.flip()
